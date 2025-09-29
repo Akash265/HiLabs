@@ -1,138 +1,128 @@
 attributes:
-  - name: Medicaid Timely Filing
-    extraction_patterns:
-      - within (\d+) days
-      - no later than (\d+) days
-      - (\d+)[-\s]day.*filing
-    section_patterns:
-      - Submission and Adjudication of Medicaid Claims
-      - Medicaid.*Claims.*Submission
-      - Timely Filing.*Medicaid
-    typical_values:
-      TN: 120 days
-      WA: 180 days
-  - name: Medicare Timely Filing
-    extraction_patterns:
-      - within (\d+) days
-      - no later than (\d+) days
-      - (\d+)[-\s]day.*filing
-    section_patterns:
-      - Submission and Adjudication of Medicare.*Claims
-      - Medicare.*Claims.*Submission
-      - Timely Filing.*Medicare
-    typical_values:
-      TN: 90 days
-      WA: 90 days
-  - name: No Steerage/SOC
-    extraction_patterns:
-      - Provider shall be eligible.*Networks
-      - participate.*in.*Networks designated
-      - Network.*designation.*on
-    section_patterns:
-      - Networks and Provider Panels
-      - Network.*Participation
-      - Provider.*Panels
-    typical_values:
-      TN: Standard network participation
-      WA: Standard network participation
-  - name: Medicaid Fee Schedule
-    extraction_patterns:
-      - (\d+)%?\s*of.*Fee Schedule
-      - Fee Schedule.*(\d+)%?
-      - Medicaid.*Rate.*(\d+)%?
-    section_patterns:
-      - Plan Compensation Schedule
-      - Specific Reimbursement Terms
-      - Medicaid.*Rate.*Methodology
-    typical_values:
-      TN: 100% of Fee Schedule
-      WA: 95% of Fee Schedule
-  - name: Medicare Fee Schedule
-    extraction_patterns:
-      - (\d+)%?\s*of.*Medicare.*Fee
-      - Medicare.*Rate.*(\d+)%?
-      - lesser of.*Charges.*or.*Medicare
-    section_patterns:
-      - Plan Compensation Schedule
-      - Specific Reimbursement Terms
-      - Medicare.*Rate.*Methodology
-    typical_values:
-      TN: 100% of Medicare Rate
-      WA: 100% of Medicare Rate
-
+- extraction_patterns:
+  - within (\d+) days
+  - no later than (\d+) days
+  - (\d+)[-\s]day.*filing
+  name: Medicaid Timely Filing
+  section_patterns:
+  - Submission and Adjudication of Medicaid Claims
+  - Medicaid.*Claims.*Submission
+  - Timely Filing.*Medicaid
+  typical_values:
+    TN: 120 days
+    WA: 180 days
+- extraction_patterns:
+  - within (\d+) days
+  - no later than (\d+) days
+  - (\d+)[-\s]day.*filing
+  name: Medicare Timely Filing
+  section_patterns:
+  - Submission and Adjudication of Medicare.*Claims
+  - Medicare.*Claims.*Submission
+  - Timely Filing.*Medicare
+  typical_values:
+    TN: 90 days
+    WA: 90 days
+- extraction_patterns:
+  - Provider shall be eligible.*Networks
+  - participate.*in.*Networks designated
+  - Network.*designation.*on
+  name: No Steerage/SOC
+  section_patterns:
+  - Networks and Provider Panels
+  - Network.*Participation
+  - Provider.*Panels
+  typical_values:
+    TN: Standard network participation
+    WA: Standard network participation
+- extraction_patterns:
+  - (\d+)%?\s*of.*Fee Schedule
+  - Fee Schedule.*(\d+)%?
+  - Medicaid.*Rate.*(\d+)%?
+  name: Medicaid Fee Schedule
+  section_patterns:
+  - Plan Compensation Schedule
+  - Specific Reimbursement Terms
+  - Medicaid.*Rate.*Methodology
+  typical_values:
+    TN: 100% of Fee Schedule
+    WA: 95% of Fee Schedule
+- extraction_patterns:
+  - (\d+)%?\s*of.*Medicare.*Fee
+  - Medicare.*Rate.*(\d+)%?
+  - lesser of.*Charges.*or.*Medicare
+  name: Medicare Fee Schedule
+  section_patterns:
+  - Plan Compensation Schedule
+  - Specific Reimbursement Terms
+  - Medicare.*Rate.*Methodology
+  typical_values:
+    TN: 100% of Medicare Rate
+    WA: 100% of Medicare Rate
 classification:
-  model_type: fuzzy # Changed from hybrid to fuzzy as default
+  exact:
+    weight: 0.2
   fuzzy:
-    weight: 0.7 # Increased from 0.3 for fuzzy mode
     partial_ratio_threshold: 75
     token_set_ratio_threshold: 85
     token_sort_ratio_threshold: 80
-  exact:
-    weight: 0.3 # Increased from 0.2 for fuzzy mode
+    weight: 0.3
+  model_type: hybrid
   semantic:
-    enabled: false # Disabled for fuzzy mode
-    weight: 0.0 # Set to 0 for fuzzy mode
+    enabled: true
     model_name: sentence-transformers/all-MiniLM-L6-v2
     threshold: 0.75
+    weight: 0.5
   thresholds:
-    standard: 0.8
-    non_standard: 0.8
-    critical_threshold: 0.6
     critical_attributes:
-      - Medicaid Timely Filing
-      - Medicare Timely Filing
-
-paths:
-  contracts_dir: ./HiLabsAIQuest_ContractsAI/Contracts
-  templates_dir: ./HiLabsAIQuest_ContractsAI/Standard_Templates
-  output_dir: ./output
-  attribute_dict: ./HiLabsAIQuest_ContractsAI/Attribute_Dictionary.xlsx
-  cache_dir: ./cache
-
-states:
-  - TN
-  - WA
-
-pdf_extraction:
-  layout_mode: true
-  keep_blank_chars: true
-  detect_vertical: false
-  x_tolerance: 3
-  y_tolerance: 3
-
+    - Medicaid Timely Filing
+    - Medicare Timely Filing
+    critical_threshold: 0.6
+    non_standard: 0.8
+    standard: 0.8
+export:
+  formats:
+  - csv
+  - json
+  - excel
+  include_audit_trail: true
+  include_confidence_scores: true
+logging:
+  file: contract_classification.log
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  level: INFO
 ocr:
+  dpi: 300
   enabled: true
   language: eng
-  dpi: 300
-
+paths:
+  attribute_dict: ./HiLabsAIQuest_ContractsAI/Attribute_Dictionary.xlsx
+  cache_dir: ./cache
+  contracts_dir: ./HiLabsAIQuest_ContractsAI/Contracts
+  output_dir: ./output
+  templates_dir: ./HiLabsAIQuest_ContractsAI/Standard_Templates
+pdf_extraction:
+  detect_vertical: false
+  keep_blank_chars: true
+  layout_mode: true
+  x_tolerance: 3
+  y_tolerance: 3
+performance:
+  batch_size: 10
+  cache_embeddings: true
+  max_file_size_mb: 50
+  parallel_workers: 4
+  timeout_seconds: 30
 preprocessing:
   normalize_whitespace: true
   remove_headers_footers: true
   remove_page_numbers: true
-
-performance:
-  parallel_workers: 4
-  batch_size: 10
-  timeout_seconds: 30
-  max_file_size_mb: 50
-  cache_embeddings: true
-
-export:
-  formats:
-    - csv
-    - json
-    - excel
-  include_confidence_scores: true
-  include_audit_trail: true
-
-logging:
-  level: INFO
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: contract_classification.log
-
+states:
+- TN
+- WA
 ui:
-  title: HiLabs Healthcare Contract Classification System
-  theme: light
-  show_confidence_scores: true
   enable_side_by_side_comparison: true
   max_upload_size_mb: 200
+  show_confidence_scores: true
+  theme: light
+  title: HiLabs Healthcare Contract Classification System

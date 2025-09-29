@@ -1,0 +1,47 @@
+# Python files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+.venv
+
+# Test and development
+tests/
+*.test.py
+*.spec.py
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Output and temp files
+output/
+temp/
+cache/
+logs/
+*.log
+
+# Data files (mount as volumes instead)
+HiLabsAIQuest_ContractsAI/Contracts/*
+HiLabsAIQuest_ContractsAI/Standard_Templates/*
+!HiLabsAIQuest_ContractsAI/Contracts/.gitkeep
+!HiLabsAIQuest_ContractsAI/Standard_Templates/.gitkeep
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
